@@ -3,15 +3,15 @@ load_data <- function(filename = 'household_power_consumption.txt',
                         max_date = '2007-02-02 23:59:59')
 {
     # Load data from fileName
-    min_date <- as.POSIXlt(min_date)
-    max_date <- as.POSIXlt(max_date)
+    min_date <- as.POSIXct(min_date)
+    max_date <- as.POSIXct(max_date)
     date_format <- '%d/%m/%Y'
     time_format <- '%H:%M:%S'
     
     # Read only header and one line, then remove the line
     data <- read.table(filename, header=T,
                        sep=';', stringsAsFactors = F, nrows=1)
-    data$Date <- as.Date(data$Date, format=date_format)
+    data$Date <- as.POSIXct(data$Date, format=date_format)
     data <- data[FALSE,c(1,3:length(names(data)))]
     
     
@@ -24,8 +24,11 @@ load_data <- function(filename = 'household_power_consumption.txt',
         read_lines <- read_lines + 1
         if (first_row) {first_row = F; next}
         line <- strsplit(oneLine, ';')[[1]]
-        line <- sapply(line, function(x) if (x == '?') {NA} else{x})
-        
+#        if (any(line == '?'))
+#        {
+#            line <- sapply(line, function(x) if (x == '?') {NA} else{x},
+#                                USE.NAMES=FALSE)
+#        }
         # date formating
         line_data <- list()
         line_data[[1]] <- as.POSIXlt(paste(line[[1]], line[[2]], sep=' '), 
@@ -43,8 +46,10 @@ load_data <- function(filename = 'household_power_consumption.txt',
         # Add line to the dataset
         nrows <- nrows + 1
         line_data <- c(line_data, 
-                       lapply(3:(length(names(data))+1), 
-                              {function(x) as.numeric(line[[x]])}))
+                       sapply(3:(length(names(data))+1), 
+                              {function(x) as.numeric(line[[x]])},
+                              simplify = FALSE,
+                              USE.NAMES = FALSE))
         data[nrows, ] <- line_data
     }
     data
