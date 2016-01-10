@@ -24,11 +24,10 @@ load_data <- function(filename = 'household_power_consumption.txt',
         read_lines <- read_lines + 1
         if (first_row) {first_row = F; next}
         line <- strsplit(oneLine, ';')[[1]]
-#        if (any(line == '?'))
-#        {
-#            line <- sapply(line, function(x) if (x == '?') {NA} else{x},
-#                                USE.NAMES=FALSE)
-#        }
+        if (any(line == '?'))
+        {
+            line <- sapply(line, function(x) if (x == '?') {NA} else{x})
+        }
         # date formating
         line_data <- list()
         line_data[[1]] <- as.POSIXlt(paste(line[[1]], line[[2]], sep=' '), 
